@@ -38,10 +38,10 @@ void print_stars(star_t* array, int n)
     int i;
     printf("\nprint_stars, n = %d:\n", n);
     for(i = 0; i<n; i++)
-        printf("%s ",array[i].designation);
+        //printf("%s ",array[i].designation);
     printf("\n");
     for (i=0; i<n; i++)
-        printf("%f ",L2norm(array[i]));
+        //printf("%f ",L2norm(array[i]));
     printf("\n");
 }
 
@@ -131,7 +131,7 @@ hist_param_t generate_histogram(float_t **matrix, int *histogram, int mat_size, 
       	int a = (int)(matrix[i][j]/(bin_size));
   			histogram[a] += 1;
   		}
-    for(i = 0; i < mat_size; i++)
+  for(i = 0; i < mat_size; i++)
 		free(matrix_cpy[i]);
 	free(matrix_cpy);
 	histparams.hist_size = hist_size;
