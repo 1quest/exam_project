@@ -1,5 +1,5 @@
 	#-------DEFINITIONS-----#
-EXECUTABLE = ../opt_mini
+EXECUTABLE = ../opt_mini ../unopt_mini
 INCLUDES = -lm
 
 # ---- COMPILER AND FLAGS ---- #
@@ -27,4 +27,4 @@ $(OPDIR)/%.o: $(UNOPDIR)/%.c
 	$(CC) $(CFLAGS) -c  $(LDFLAGS)
 
 clean:
-	rm -f *.o $(EXECUTABLE)
+	rm -f *.o $(EXECUTABLE) $(EXECUTABLE).exe
