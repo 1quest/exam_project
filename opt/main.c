@@ -21,7 +21,7 @@ void printtime(clock_t s, clock_t e)
 
 int main(int argc, char **argv)
 {
-  int N, i;
+  int N;
   clock_t start, end;
   if(argc < 2)
     {
@@ -52,9 +52,7 @@ int main(int argc, char **argv)
    
   printf("allocating matrix: \t");
   start = clock();
-  float_t **matrix = (float_t**)malloc(N * sizeof(float_t*));
-	for(i = 0; i < N; i++) 
-		matrix[i] = (float_t *)malloc(N * sizeof(float_t));
+  float_t *matrix = (float_t*)malloc(N * N * sizeof(float_t));
    
   end = clock();
   printtime(start, end);
@@ -71,8 +69,6 @@ int main(int argc, char **argv)
   hist_param_t histparams = generate_histogram(matrix, histogram, N, NUM_HIST_BOXES);
   end = clock();
   printtime(start, end);
-	for(i = 0; i < N; i++) 
-		free(matrix[i]);
 	free(matrix);
 	free(stars);
 	free(histogram);
