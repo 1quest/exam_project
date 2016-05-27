@@ -27,18 +27,25 @@ void create_random_array(star_t * stars, int size)
 		filler->position.x = 200000*(float)rand()/(float)RAND_MAX-1000000;
 		filler->position.y = 200000*(float)rand()/(float)RAND_MAX-1000000;
 		filler->position.z = 6000*(float)rand()/(float)RAND_MAX-3000;
-		stars[i] = filler[0];
+		memcpy(&stars[i],filler,sizeof(star_t));
 	}
 	free(filler);
 }
 
+static inline float_t L2norm(star_t star){
+    return sqrt(star.position.x*star.position.x+star.position.y*star.position.y+star.position.z*star.position.z);
+}
+
 void print_stars(star_t* array, int n)
 {
-  int i;
-  printf("\nprint_stars, n = %d:\n", n);
-  for(i = 0; i<n; i++)
-    printf("%s ",array[i].designation);
-  printf("\n");
+    int i;
+    printf("\nprint_stars, n = %d:\n", n);
+    for(i = 0; i<n; i++)
+        printf("%s ",array[i].designation);
+    printf("\n");
+    for (i=0; i<n; i++)
+        printf("%f ",L2norm(array[i]));
+    printf("\n");
 }
 
 static inline float_t starfunc(star_t a, star_t b)
