@@ -17,19 +17,16 @@ void create_random_array(star_t * stars, int size)
 {
 	srand(time(NULL));
 	int i;
-	const char STypes[9] = {"OBAFGKMLT"};	 
-	star_t* filler = malloc(sizeof(star_t)); 
+	const char STypes[9] = {"OBAFGKMLT"};
 	for(i = 0; i < size; i++){
-		filler->index = i; 
-		filler->subType = (unsigned short)(rand() % 10);
-		filler->magnitude = 30*(float)rand()/(float)RAND_MAX-10;
-		filler->spectralType = STypes[rand() % 9];
-		filler->position.x = 200000*(float)rand()/(float)RAND_MAX-1000000;
-		filler->position.y = 200000*(float)rand()/(float)RAND_MAX-1000000;
-		filler->position.z = 6000*(float)rand()/(float)RAND_MAX-3000;
-		memcpy(&stars[i],filler,sizeof(star_t));
-	}
-	free(filler);
+		stars[i].index = i; 
+		stars[i].subType = (unsigned short)(rand() % 10);
+		stars[i].magnitude = 30*(float)rand()/(float)RAND_MAX-10;
+		stars[i].spectralType = STypes[rand() % 9];
+		stars[i].position.x = 200000*(float)rand()/(float)RAND_MAX-1000000;
+		stars[i].position.y = 200000*(float)rand()/(float)RAND_MAX-1000000;
+		stars[i].position.z = 6000*(float)rand()/(float)RAND_MAX-3000;
+		}
 }
 
 static inline float_t L2norm(star_t star){
