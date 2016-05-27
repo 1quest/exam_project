@@ -23,7 +23,7 @@ void create_random_array(star_t * stars, int size)
 		stars[i].subType = (unsigned short)(rand() % 10);
 		stars[i].magnitude = 30*(float)rand()/(float)RAND_MAX-10;
 		stars[i].spectralType = STypes[rand() % 9];
-		stars[i].designation = sprintf("%c%d.%d", stars[i].spectralType, stars[i].subType, i);
+		stars[i].designation = sprintf("%c%d.%d", &stars[i].spectralType, &stars[i].subType, i);
 		stars[i].position.x = 200000*(float)rand()/(float)RAND_MAX-1000000;
 		stars[i].position.y = 200000*(float)rand()/(float)RAND_MAX-1000000;
 		stars[i].position.z = 6000*(float)rand()/(float)RAND_MAX-3000;
