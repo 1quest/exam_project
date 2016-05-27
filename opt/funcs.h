@@ -16,6 +16,7 @@
 void create_random_array(star_t * array, int size);
 void sort(star_t* array, int n);
 void print_stars(star_t* array, int n);
+void sort(star_t* array, int n);
 
 void fill_matrix(star_t * array, float_t **matrix, int size);
 void print_matrix(float_t** matrix, int n);
