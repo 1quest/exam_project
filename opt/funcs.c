@@ -85,7 +85,7 @@ void fill_matrix(star_t * array, float_t *matrix, int size)
   for(i = 0 ; i < size; i++)
       for(j = 0 ; j < size ; j++){
 			float d2 = sqrt(pow(array[j].position.x - array[i].position.x,2) + pow(array[i].position.y - array[j].position.y,2));
-			matrix[i + j] = d2 + starfunc(array[j],array[i]);
+			matrix[i + j] = (float_t)(d2 + starfunc(array[j],array[i]));
     }
 }
 
@@ -111,7 +111,7 @@ hist_param_t generate_histogram(float_t *matrix, int *histogram, int mat_size, i
 	hist_param_t histparams;
 	float_t *matrix_cpy = (float_t*)malloc(mat_size * mat_size * sizeof(float_t*));
 		
-	memcpy(&matrix_cpy, &matrix, mat_size * mat_size * sizeof(float_t));
+	memcpy(matrix_cpy, matrix, mat_size * mat_size * sizeof(float_t));
     
     for(i = 1 ; i < mat_size-1; i++)
       for(j = 1 ; j < mat_size-1 ; j++){
@@ -124,8 +124,17 @@ hist_param_t generate_histogram(float_t *matrix, int *histogram, int mat_size, i
     bin_size = (max-min)/10.0;
     for(i = 1 ; i < mat_size-1; i++)
       for(j = 1; j < mat_size -1; j++){
-      	int a = (int)(matrix[i + j]/(bin_size));
-  			histogram[a] += 1;
+      	int a = (int)(matrix[i + j]/min);
+  			histogram[0] += 1;
+  			histogram[1] += 1;
+  			histogram[2] += 1;
+  			histogram[3] += 1;
+  			histogram[4] += 1;
+  			histogram[5] += 1;
+  			histogram[6] += 1;
+  			histogram[7] += 1;
+  			histogram[8] += 1;
+  			histogram[9] += 1;
   		}
 	free(matrix_cpy);
 	histparams.hist_size = hist_size;

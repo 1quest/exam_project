@@ -62,7 +62,7 @@ int main(int argc, char **argv)
   fill_matrix(stars, matrix, N);
   end = clock();
   printtime(start, end);
-   print_matrix(matrix, N);
+   //print_matrix(matrix, N);
   printf("generating histogram: \t");
   start = clock();
   int *histogram = (int *)calloc(NUM_HIST_BOXES,sizeof(int));
@@ -71,6 +71,6 @@ int main(int argc, char **argv)
   printtime(start, end);
 	free(matrix);
 	free(stars);
-	free(histogram);
   display_histogram(histogram, histparams);
+  free(histogram);
 }
