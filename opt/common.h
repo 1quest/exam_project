@@ -22,8 +22,9 @@ typedef struct star{
   int index;                   // counting index
   char spectralType;           // random: O, B, A, F, G, K, M, L, T
   unsigned short subType;      // random: 0-9
-  float_t magnitude;           // random: (-10, +20)
   char designation[9]; 	       // sprintf("%c%d.%d", spectralType, subType, index)
+  float_t magnitude;           // random: (-10, +20)
+
   struct pos{
     float_t x, y, z;          // x & y random in (-1e5, 1e5), z random in (-3e3, 3e3)
   } position;
