@@ -65,16 +65,16 @@ int main(int argc, char **argv)
   end = clock();
   printtime(start, end);
    print_matrix(matrix, N);
-  /*printf("generating histogram: \t");
+  printf("generating histogram: \t");
   start = clock();
   int *histogram = (int *)calloc(NUM_HIST_BOXES,sizeof(int));
   hist_param_t histparams = generate_histogram(matrix, histogram, N, NUM_HIST_BOXES);
-  end = clock()*/
+  end = clock();
   printtime(start, end);
 	for(i = 0; i < N; i++) 
 		free(matrix[i]);
 	free(matrix);
 	free(stars);
-	//free(histogram);
-  //display_histogram(histogram, histparams);
+	free(histogram);
+  display_histogram(histogram, histparams);
 }

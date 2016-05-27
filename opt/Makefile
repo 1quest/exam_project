@@ -1,5 +1,5 @@
 	#-------DEFINITIONS-----#
-EXECUTABLE = ../opt_mini ../unopt_mini
+EXECUTABLE = ../opt_mini
 INCLUDES = -lm
 
 # ---- COMPILER AND FLAGS ---- #
