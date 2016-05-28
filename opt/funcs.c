@@ -125,24 +125,30 @@ hist_param_t generate_histogram(float_t *matrix, int *histogram, int mat_size, i
 	float_t *matrix_cpy = (float_t*)malloc((mat_size * mat_size / 2 + mat_size/2) * sizeof(float_t));
 	k = mat_size - 1;
 	a = mat_size - 1;
-	memcpy(matrix_cpy, matrix, mat_size * mat_size * sizeof(float_t));  
+	memcpy(matrix_cpy, matrix, (mat_size * mat_size / 2 + mat_size/2) * sizeof(float_t));  
     for(i = 1 ; i < mat_size-1; i++){
-      for(j = i+1 ; j < mat_size-1 ; j++){
+      for(j = i+1 ; j < mat_size ; j++){
       	tmp = matrix[a+j-i];
       	matrix[a+j-i] = abs(tmp - matrix_cpy[a+j-i-1]) + abs(tmp -matrix_cpy[a+j-i+1]) + abs(tmp - matrix_cpy[a+j-i+k])  + abs(tmp - matrix_cpy[a+j-i-k+1]); //Input the vector opåerator for dis cpu?
       	matrix[a+j-i] /= 4; //Input floating point operator << instead
       if(matrix[a+j-i] > max) max = matrix[a+j-i];
       else if(matrix[a+j-i] < min) min = matrix[a+j-i];
-    }
-		k = mat_size - i;
-		a+= mat_size - i;
+      if(a+j-i==29)
+      	printf("%.2e in place %i.. down:%i   up:%i   left:%i   right:%i \n", matrix[17]  ,a+j-i,a+j-i - (a)*(i==j-1)  ,a+j-2+i-k     ,a+j-i-1 + 2*(i==j-1), a+j-i+1);
+    	}
+			k = mat_size - i;
+			a += mat_size - i;
 		}
     bin_size = (max-min)/(hist_size);
-   /* for(i = 1 ; i < mat_size-1; i++)
-      for(j = i; j < mat_size -1; j++){
-      	a = (int)((matrix[a+j-i]-min)/bin_size); //Do this for four number at a time
-  			histogram[a] += 1;
-  		}*/
+		a = mat_size - 1;
+    for(i = 1 ; i < mat_size-1; i++){
+      for(j = i+1; j < mat_size; j++){
+      	k = (int)((matrix[a+j-i]-min)/bin_size); //Do this for four number at a time
+      	printf("k is: %i  and index %f.  put in? %i\n",k, matrix[a+j-i] , i==j-1);
+  			histogram[k] += 1 - (i==(j-1));
+  		}
+			a+= mat_size - i ;
+		}
 		histogram[9] += histogram[10];
 	free(matrix_cpy);
 	histparams.hist_size = hist_size;
