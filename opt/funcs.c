@@ -109,7 +109,7 @@ void print_matrix(float_t** theMatrix, int n)
   for(i = 0 ; i < n; i++)
     {
       for(j = 0 ; j < n ; j++)
-			printf("%.2e " , *(theMatrix[i*n+j])); //.2f
+			printf("%.2e " , *theMatrix[i*n+j]); //.2f
       putchar('\n');
     }
 }
@@ -146,7 +146,7 @@ hist_param_t generate_histogram(float_t *matrix, int *histogram, int mat_size, i
       for(j = i+1; j < mat_size; j++){
       	k = (int)((matrix[a+j-i]-min)/bin_size); //Do this for four number at a time
       	//printf("k is: %i  and index %f.  put in? %i\n",k, matrix[a+j-i] , i==j-1); // <- proof of concept
-  			histogram[k] += 1 - (i==(j-1));
+  			histogram[k] += 2 - (i==(j-1));
   		}
 			a+= mat_size - i ;
 		}

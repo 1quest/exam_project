@@ -59,20 +59,23 @@ int main(int argc, char **argv)
   printf("filling matrix: \t");
   start = clock();
   fill_matrix(stars, matrix, N);
-	#ifdef OUTPUT
-	int i ,j, s
-	float_t *ptrs[N*N];
-	s = 0;
-	if(N<20)
+	if(N<20){
+		int i ,j, s;
+		float_t *ptrs[N*N] ;
+		s = 0;
 		for ( i = 0; i < N; i++) {
 			for (j = i; j < N ; j++){
 				ptrs[i*N + j] = &matrix[s + j - i];
-				ptrs[i + j*N] = &matrix[s + j - i]; 
+				ptrs[(i + j*N)] = &matrix[s + j - i]; 
+				if(s + j -i == 49)
+					printf("%.2e in place %i.. to add to %i and %i\n", // <- proof of concept
+					matrix[s + j - i]  ,s+j-i, i*N + j, (i + j*N)*(1 - i==j));
 			}
 				s +=  N-i; 
 		}
-	print_matrix(ptrs, N);  // <--- This has output if defined alse helps to prove a point
-	#endif /*OUTPUT*/
+		
+	print_matrix(ptrs, N);   // <--- This has output if defined alse helps to prove a point
+ }
   end = clock();
   printtime(start, end);
   printf("generating histogram: \t");
