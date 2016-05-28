@@ -63,7 +63,7 @@ int main(int argc, char **argv)
 	int i ,j, s
 	float_t *ptrs[N*N];
 	s = 0;
-	if(N<500)
+	if(N<20)
 		for ( i = 0; i < N; i++) {
 			for (j = i; j < N ; j++){
 				ptrs[i*N + j] = &matrix[s + j - i];
@@ -77,12 +77,12 @@ int main(int argc, char **argv)
   printtime(start, end);
   printf("generating histogram: \t");
   start = clock();
-  //int *histogram = (int *)calloc(NUM_HIST_BOXES+1,sizeof(int));
-  //hist_param_t histparams = generate_histogram(matrix, histogram, N, NUM_HIST_BOXES);
+  int *histogram = (int *)calloc(NUM_HIST_BOXES+1,sizeof(int));
+  hist_param_t histparams = generate_histogram(matrix, histogram, N, NUM_HIST_BOXES);
   end = clock();
   printtime(start, end);
 	free(matrix);
 	free(stars);
-  //display_histogram(histogram, histparams);
-  //free(histogram);
+  display_histogram(histogram, histparams);
+  free(histogram);
 }

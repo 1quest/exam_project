@@ -116,30 +116,33 @@ void print_matrix(float_t** theMatrix, int n)
 
 hist_param_t generate_histogram(float_t *matrix, int *histogram, int mat_size, int hist_size)
 {
-	int i,j;
+	int i,j, a, k;
 	float min = 10000;
 	float max = 0;
 	float bin_size;
 	float_t tmp;
 	hist_param_t histparams;
-	float_t *matrix_cpy = (float_t*)malloc(mat_size * mat_size * sizeof(float_t*));
-		
-	memcpy(matrix_cpy, matrix, mat_size * mat_size * sizeof(float_t));
-    
-    for(i = 1 ; i < mat_size-1; i++)
-      for(j = i ; j < mat_size-1 ; j++){
-      	tmp = matrix[mat_size*i + j];
-      	matrix[mat_size*i + j] = abs(tmp - matrix_cpy[mat_size*(i-1) + j]) + abs(tmp -matrix_cpy[mat_size*i + j-1]) + abs(tmp - matrix_cpy[mat_size*(i+1) + j])  + abs(tmp - matrix_cpy[mat_size*i + j+1]); //Input the vector opåerator for dis cpu?
-      	matrix[mat_size*i + j] /= 4; //Input floating point operator << instead
-      if(matrix[mat_size*i + j] > max) max = matrix[mat_size*i + j];
-      else if(matrix[mat_size*i + j] < min) min = matrix[mat_size*i + j];
+	float_t *matrix_cpy = (float_t*)malloc((mat_size * mat_size / 2 + mat_size/2) * sizeof(float_t));
+	k = mat_size - 1;
+	a = mat_size - 1;
+	memcpy(matrix_cpy, matrix, mat_size * mat_size * sizeof(float_t));  
+    for(i = 1 ; i < mat_size-1; i++){
+      for(j = i+1 ; j < mat_size-1 ; j++){
+      	tmp = matrix[a+j-i];
+      	matrix[a+j-i] = abs(tmp - matrix_cpy[a+j-i-1]) + abs(tmp -matrix_cpy[a+j-i+1]) + abs(tmp - matrix_cpy[a+j-i+k])  + abs(tmp - matrix_cpy[a+j-i-k+1]); //Input the vector opåerator for dis cpu?
+      	matrix[a+j-i] /= 4; //Input floating point operator << instead
+      if(matrix[a+j-i] > max) max = matrix[a+j-i];
+      else if(matrix[a+j-i] < min) min = matrix[a+j-i];
     }
+		k = mat_size - i;
+		a+= mat_size - i;
+		}
     bin_size = (max-min)/(hist_size);
-    for(i = 1 ; i < mat_size-1; i++)
-      for(j = 1; j < mat_size -1; j++){
-      	int a = (int)((matrix[mat_size*i + j]-min)/bin_size); //Do this for four number at a time
+   /* for(i = 1 ; i < mat_size-1; i++)
+      for(j = i; j < mat_size -1; j++){
+      	a = (int)((matrix[a+j-i]-min)/bin_size); //Do this for four number at a time
   			histogram[a] += 1;
-  		}
+  		}*/
 		histogram[9] += histogram[10];
 	free(matrix_cpy);
 	histparams.hist_size = hist_size;
