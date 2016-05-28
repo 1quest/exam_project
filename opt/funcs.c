@@ -41,6 +41,10 @@ void print_stars(star_t* array, int n)
     for(i = 0; i<n; i++)
         printf("%s ",array[i].designation);
     printf("\n");
+		
+		for(i = 0; i<n; i++)
+        printf("%f ",L2norm(array[i]));
+    printf("\n");
 }
 
 static inline float_t starfunc(star_t a, star_t b)
@@ -50,7 +54,7 @@ static inline float_t starfunc(star_t a, star_t b)
   return sqrt(x + y + x*y/0.6);
 }
 
-void sort(star_t* array, int n)  //bubble sort
+void sort(star_t* array, int n)
 {
 	  int i, j;
     float p, d1, d2;
@@ -82,11 +86,16 @@ void sort(star_t* array, int n)  //bubble sort
 void fill_matrix(star_t * array, float_t *matrix, int size)
 {
   int i, j; 
-  for(i = 0 ; i < size; i++)
-      for(j = 0 ; j < size ; j++){
-			float d2 = sqrt(pow(array[j].position.x - array[i].position.x,2) + pow(array[i].position.y - array[j].position.y,2));
-			matrix[i + j] = (float_t)(d2 + starfunc(array[j],array[i]));
+	//float_t * temp = (float_t*)malloc(size * sizeof(float_t));
+  for(i = 0 ; i < size; i++){
+			float x1 = array[i].position.x;
+			float y1 = array[i].position.y;
+      for(j = i ; j < size ; j++){
+				float d2 = sqrt(pow(array[j].position.x - x1,2) + pow(y1 - array[j].position.y,2));
+				matrix[size*i + j] = (float_t)(d2 + starfunc(array[j],array[i]));
+				//matrix[i + size*j] = (float_t)(d2 + starfunc(array[j],array[i]));
     }
+	}
 }
 
 void print_matrix(float_t* theMatrix, int n)
@@ -115,27 +124,19 @@ hist_param_t generate_histogram(float_t *matrix, int *histogram, int mat_size, i
     
     for(i = 1 ; i < mat_size-1; i++)
       for(j = 1 ; j < mat_size-1 ; j++){
-      	tmp = matrix[i + j];
-      	matrix[i + j] = abs(tmp - matrix_cpy[i-1 + j]) + abs(tmp -matrix_cpy[i + j-1]) + abs(tmp - matrix_cpy[i+1 + j])  + abs(tmp - matrix_cpy[i + j+1]); //Input the vector opåerator for dis cpu?
-      	matrix[i + j] /= 4; //Input floating point operator << instead
-      if(matrix[i + j] > max) max = matrix[i + j];
-      else if(matrix[i + j] < min) min = matrix[i + j];
+      	tmp = matrix[mat_size*i + j];
+      	matrix[mat_size*i + j] = abs(tmp - matrix_cpy[mat_size*(i-1) + j]) + abs(tmp -matrix_cpy[mat_size*i + j-1]) + abs(tmp - matrix_cpy[mat_size*(i+1) + j])  + abs(tmp - matrix_cpy[mat_size*i + j+1]); //Input the vector opåerator for dis cpu?
+      	matrix[mat_size*i + j] /= 4; //Input floating point operator << instead
+      if(matrix[mat_size*i + j] > max) max = matrix[mat_size*i + j];
+      else if(matrix[mat_size*i + j] < min) min = matrix[mat_size*i + j];
     }
-    bin_size = (max-min)/10.0;
+    bin_size = (max-min)/(hist_size);
     for(i = 1 ; i < mat_size-1; i++)
       for(j = 1; j < mat_size -1; j++){
-      	int a = (int)(matrix[i + j]/min);
-  			histogram[0] += 1;
-  			histogram[1] += 1;
-  			histogram[2] += 1;
-  			histogram[3] += 1;
-  			histogram[4] += 1;
-  			histogram[5] += 1;
-  			histogram[6] += 1;
-  			histogram[7] += 1;
-  			histogram[8] += 1;
-  			histogram[9] += 1;
+      	int a = (int)((matrix[mat_size*i + j]-min)/bin_size); //Do this for four number at a time
+  			histogram[a] += 1;
   		}
+		histogram[9] += histogram[10];
 	free(matrix_cpy);
 	histparams.hist_size = hist_size;
 	histparams.bin_size = bin_size;

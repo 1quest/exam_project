@@ -4,7 +4,7 @@ INCLUDES = -lm
 
 # ---- COMPILER AND FLAGS ---- #
 CC := gcc
-CFLAGS = -g -Wall
+CFLAGS = -O3 -g -Wall
 LDFLAGS = -lm
 # ----------------------------- #
 

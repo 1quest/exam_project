@@ -21,7 +21,7 @@ void printtime(clock_t s, clock_t e)
 
 int main(int argc, char **argv)
 {
-  int N, i;
+  int N;
   clock_t start, end;
   if(argc < 2)
     {
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
    
   end = clock();
   printtime(start, end);
-  // print_stars(stars, N);
+  //print_stars(stars, N);   // <--- This has output
          
   printf("sorting stars:    \t");
   start = clock();
@@ -48,13 +48,11 @@ int main(int argc, char **argv)
    
   end = clock();
   printtime(start, end);
-  // print_stars(stars, N);
+  //print_stars(stars, N);   // <--- This has output
    
   printf("allocating matrix: \t");
   start = clock();
-  float_t **matrix = (float_t**)malloc(N * sizeof(float_t*));
-	for(i = 0; i < N; i++) 
-		matrix[i] = (float_t *)malloc(N * sizeof(float_t));
+  float_t *matrix = (float_t*)malloc(N * N * sizeof(float_t));
    
   end = clock();
   printtime(start, end);
@@ -62,19 +60,17 @@ int main(int argc, char **argv)
   printf("filling matrix: \t");
   start = clock();
   fill_matrix(stars, matrix, N);
-   
   end = clock();
   printtime(start, end);
-  // print_matrix(matrix, N);
-   
+   //print_matrix(matrix, N);   // <--- This has output
   printf("generating histogram: \t");
   start = clock();
-  int *histogram = (int *)calloc(NUM_HIST_BOXES,sizeof(int));
+  int *histogram = (int *)calloc(NUM_HIST_BOXES+1,sizeof(int));
   hist_param_t histparams = generate_histogram(matrix, histogram, N, NUM_HIST_BOXES);
   end = clock();
   printtime(start, end);
-	for(i = 0; i < N; i++) 
-		free(matrix[i]);
 	free(matrix);
+	free(stars);
   display_histogram(histogram, histparams);
+  free(histogram);
 }
