@@ -85,17 +85,19 @@ void sort(star_t* array, int n)
 
 void fill_matrix(star_t * array, float_t *matrix, int size)
 {
-  int i, j,a; 
-				a = 0;
+  int i, j, a; 
+	a = 0;
+	//putchar('\n'); //For proving its correct
 	//float_t * temp = (float_t*)malloc(size * sizeof(float_t));
   for(i = 0 ; i < size; i++){
-			float x1 = array[i].position.x;
-			float y1 = array[i].position.y; 
-      for(j = i; j < size; j++){
-				float d2 = sqrt(pow(array[j].position.x - x1,2) + pow(y1 - array[j].position.y,2));
-				matrix[a+j-i] = (float_t)(d2 + starfunc(array[j],array[i]));
-				//printf("hej: %i\n", a+j-i);
+		float x1 = array[i].position.x;
+		float y1 = array[i].position.y; 
+    for(j = i; j < size; j++){
+			float d2 = sqrt(pow(array[j].position.x - x1,2) + pow(y1 - array[j].position.y,2));
+			matrix[a+j-i] = (float_t)(d2 + starfunc(array[j],array[i]));
+			//printf("%.2e ",matrix[a+j-i]); //For proving its correct
     }
+		//putchar('\n');  //For proving its correct
 		a+=size-i;
 	}
 }

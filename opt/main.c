@@ -21,7 +21,7 @@ void printtime(clock_t s, clock_t e)
 
 int main(int argc, char **argv)
 {
-  int N, i ,j, k, s;
+  int N;
   clock_t start, end;
   if(argc < 2)
     {
@@ -59,28 +59,22 @@ int main(int argc, char **argv)
   printf("filling matrix: \t");
   start = clock();
   fill_matrix(stars, matrix, N);
-	printf("%.2e\n",matrix[19]);
-	float_t **ptrs[N*N];
-	k = 0;
+	#ifdef OUTPUT
+	int i ,j, s
+	float_t *ptrs[N*N];
 	s = 0;
 	if(N<500)
 		for ( i = 0; i < N; i++) {
-			//ptrs[i*N + i] = &matrix[s];
-			printf("%i   ---   %i\n", i + i*N, s);
 			for (j = i; j < N ; j++){
-				printf("%i   ---   %i\n", i*N+ j, s+j-i);
-				printf("%i   ---   %i\n", i + j*N, s+j-i);
 				ptrs[i*N + j] = &matrix[s + j - i];
 				ptrs[i + j*N] = &matrix[s + j - i]; 
 			}
-				k ++;
 				s +=  N-i; 
 		}
+	print_matrix(ptrs, N);  // <--- This has output if defined alse helps to prove a point
+	#endif /*OUTPUT*/
   end = clock();
   printtime(start, end);
-	if(N < 20){
-		print_matrix(ptrs, N);  // <--- This has output
-	}
   printf("generating histogram: \t");
   start = clock();
   //int *histogram = (int *)calloc(NUM_HIST_BOXES+1,sizeof(int));
