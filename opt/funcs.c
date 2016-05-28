@@ -133,8 +133,9 @@ hist_param_t generate_histogram(float_t *matrix, int *histogram, int mat_size, i
       	matrix[a+j-i] /= 4; //Input floating point operator << instead
       if(matrix[a+j-i] > max) max = matrix[a+j-i];
       else if(matrix[a+j-i] < min) min = matrix[a+j-i];
-      if(a+j-i==29)
-      	printf("%.2e in place %i.. down:%i   up:%i   left:%i   right:%i \n", matrix[17]  ,a+j-i,a+j-i - (a)*(i==j-1)  ,a+j-2+i-k     ,a+j-i-1 + 2*(i==j-1), a+j-i+1);
+      //if(a+j-i==46)
+      	//printf("%.2e in place %i.. up:%i   down:%i   left:%i   right:%i \n", // <- proof of concept
+			//matrix[19]  ,a+j-i, a+j-i - k+1  ,  a+j-i + k-2  - (2*k-3)*(i==j-1)  ,a+j-i-1 + 2*(i==j-1), a+j-i+1);
     	}
 			k = mat_size - i;
 			a += mat_size - i;
@@ -144,7 +145,7 @@ hist_param_t generate_histogram(float_t *matrix, int *histogram, int mat_size, i
     for(i = 1 ; i < mat_size-1; i++){
       for(j = i+1; j < mat_size; j++){
       	k = (int)((matrix[a+j-i]-min)/bin_size); //Do this for four number at a time
-      	printf("k is: %i  and index %f.  put in? %i\n",k, matrix[a+j-i] , i==j-1);
+      	//printf("k is: %i  and index %f.  put in? %i\n",k, matrix[a+j-i] , i==j-1); // <- proof of concept
   			histogram[k] += 1 - (i==(j-1));
   		}
 			a+= mat_size - i ;
