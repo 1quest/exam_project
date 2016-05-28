@@ -85,27 +85,29 @@ void sort(star_t* array, int n)
 
 void fill_matrix(star_t * array, float_t *matrix, int size)
 {
-  int i, j; 
+  int i, j,a; 
+				a = 0;
 	//float_t * temp = (float_t*)malloc(size * sizeof(float_t));
   for(i = 0 ; i < size; i++){
 			float x1 = array[i].position.x;
-			float y1 = array[i].position.y;
-      for(j = i ; j < size ; j++){
+			float y1 = array[i].position.y; 
+      for(j = i; j < size; j++){
 				float d2 = sqrt(pow(array[j].position.x - x1,2) + pow(y1 - array[j].position.y,2));
-				matrix[size*i + j] = (float_t)(d2 + starfunc(array[j],array[i]));
-				//matrix[i + size*j] = (float_t)(d2 + starfunc(array[j],array[i]));
+				matrix[a+j-i] = (float_t)(d2 + starfunc(array[j],array[i]));
+				//printf("hej: %i\n", a+j-i);
     }
+		a+=size-i;
 	}
 }
 
-void print_matrix(float_t* theMatrix, int n)
+void print_matrix(float_t** theMatrix, int n)
 {
   int i, j;
   printf("\nprint_matrix, n = %d:\n", n);
   for(i = 0 ; i < n; i++)
     {
       for(j = 0 ; j < n ; j++)
-	printf("%.2f " , theMatrix[i + j]);
+			printf("%.2e " , *(theMatrix[i*n+j])); //.2f
       putchar('\n');
     }
 }
@@ -123,7 +125,7 @@ hist_param_t generate_histogram(float_t *matrix, int *histogram, int mat_size, i
 	memcpy(matrix_cpy, matrix, mat_size * mat_size * sizeof(float_t));
     
     for(i = 1 ; i < mat_size-1; i++)
-      for(j = 1 ; j < mat_size-1 ; j++){
+      for(j = i ; j < mat_size-1 ; j++){
       	tmp = matrix[mat_size*i + j];
       	matrix[mat_size*i + j] = abs(tmp - matrix_cpy[mat_size*(i-1) + j]) + abs(tmp -matrix_cpy[mat_size*i + j-1]) + abs(tmp - matrix_cpy[mat_size*(i+1) + j])  + abs(tmp - matrix_cpy[mat_size*i + j+1]); //Input the vector opåerator for dis cpu?
       	matrix[mat_size*i + j] /= 4; //Input floating point operator << instead

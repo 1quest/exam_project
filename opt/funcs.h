@@ -19,7 +19,7 @@ void print_stars(star_t* array, int n);
 void sort(star_t* array, int n);
 
 void fill_matrix(star_t * array, float_t *matrix, int size);
-void print_matrix(float_t* matrix, int n);
+void print_matrix(float_t** matrix, int n);
 
 hist_param_t generate_histogram(float_t *matrix, int *histogram, int mat_size, int hist_size);
 
