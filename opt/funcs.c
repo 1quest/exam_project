@@ -90,12 +90,15 @@ void fill_matrix(star_t * array, float_t *matrix, int size)
 	//putchar('\n'); //For proving its correct
 	//float_t * temp = (float_t*)malloc(size * sizeof(float_t));
   for(i = 0 ; i < size; i++){
-		float x1 = array[i].position.x;
-		float y1 = array[i].position.y; 
+		float_t x1 = array[i].position.x;
+		float_t y1 = array[i].position.y; 
+		float_t z1 = array[i].position.z;
     for(j = i; j < size; j++){
-			float d2 = sqrt(pow(array[j].position.x - x1,2) + pow(y1 - array[j].position.y,2));
+			float_t d2 = sqrt(pow(array[j].position.x - x1,2) + pow(y1 - array[j].position.y,2) + pow(z1 - array[j].position.z,2));
 			matrix[a+j-i] = (float_t)(d2 + starfunc(array[j],array[i]));
 			//printf("%.2e ",matrix[a+j-i]); //For proving its correct
+			//printf("%.2f in place %i.. which becomes n%i%i\n", // <- proof of concept
+			//matrix[a+j-i]  ,a+j-i, i,j);  //<<shorten these
     }
 		//putchar('\n');  //For proving its correct
 		a+=size-i;
@@ -109,7 +112,7 @@ void print_matrix(float_t** theMatrix, int n)
   for(i = 0 ; i < n; i++)
     {
       for(j = 0 ; j < n ; j++)
-			printf("%.2e " , *theMatrix[i*n+j]); //.2f
+			printf("%.2f " , *theMatrix[i*n+j]); //.2f
       putchar('\n');
     }
 }
@@ -117,7 +120,7 @@ void print_matrix(float_t** theMatrix, int n)
 hist_param_t generate_histogram(float_t *matrix, int *histogram, int mat_size, int hist_size)
 {
 	int i,j, a, k, crd; //crd = coordinates
-	float min = 10000;
+	float min = 100000;
 	float max = 0;
 	float bin_size;
 	float_t tmp;
@@ -127,11 +130,11 @@ hist_param_t generate_histogram(float_t *matrix, int *histogram, int mat_size, i
 	a = mat_size - 1;
 	memcpy(matrix_cpy, matrix, (mat_size * mat_size / 2 + mat_size/2) * sizeof(float_t));  
     for(i = 1 ; i < mat_size-1; i++){
-      for(j = i ; j < mat_size ; j++){
+      for(j = i +1 ; j < mat_size ; j++){
       	crd = a+j-i;
       	tmp = matrix[crd];
-      	matrix[crd] = abs(tmp - matrix_cpy[crd - k+1]) +  //up
-      	 abs(tmp -matrix_cpy[crd + k - 2 - (2*k-3)*(i==j-1) - (1/i)]) + //down
+      	matrix[crd] = abs(tmp - matrix_cpy[crd - k+1 - (1/i)]) +  //up
+      	 abs(tmp -matrix_cpy[crd + k - 2 - (2*k-3)*(i==j-1) + (1/i)]) + //down
       	 abs(tmp - matrix_cpy[crd - 1 + 2*(i==j-1)])  + //left
       	 abs(tmp - matrix_cpy[crd + 1]); //Input the vector opåerator for dis cpu?
       	matrix[crd] /= 4; //Input floating point operator << instead
@@ -139,8 +142,8 @@ hist_param_t generate_histogram(float_t *matrix, int *histogram, int mat_size, i
       if(matrix[crd] > max) max = matrix[a+j-i];
       else if(matrix[crd] < min) min = matrix[a+j-i];
       //if(a+j-i==46)
-      	//printf("%.2e in place %i.. up:%i   down:%i   left:%i   right:%i \n", // <- proof of concept
-			//matrix[19]  ,a+j-i, a+j-i - k+1 - (1/i)  ,  a+j-i + k-2  - (2*k-3)*(i==j-1) - (1/i) ,a+j-i-1 + 2*(i==j-1), a+j-i+1);  //<<shorten these
+      //printf("%.2e in place %i.. up:%i   down:%i   left:%i   right:%i \n", // <- proof of concept
+			//matrix[19]  ,a+j-i, crd - k+1 - (1/i), crd + k - 2 - (2*k-3)*(i==j-1) + (1/i) ,a+j-i-1 + 2*(i==j-1), a+j-i+1);  //<<shorten these
     	}
 			k = mat_size - i;
 			a += mat_size - i;

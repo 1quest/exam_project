@@ -13,6 +13,7 @@
 #include <math.h>
 #include <time.h>
 #include "funcs.h"
+#include "ref_input.h"
 
 void printtime(clock_t s, clock_t e)
 {
@@ -36,6 +37,7 @@ int main(int argc, char **argv)
   start = clock();
    
   create_random_array(stars, N);
+  //create_ref_star_array(stars, N);
    
   end = clock();
   printtime(start, end);
@@ -59,6 +61,8 @@ int main(int argc, char **argv)
   printf("filling matrix: \t");
   start = clock();
   fill_matrix(stars, matrix, N);
+  end = clock();
+  printtime(start, end);
 	if(N<20){
 		int i ,j, s;
 		float_t *ptrs[N*N] ;
@@ -76,8 +80,6 @@ int main(int argc, char **argv)
 		
 	print_matrix(ptrs, N);   // <--- This has output if defined alse helps to prove a point
  }
-  end = clock();
-  printtime(start, end);
   printf("generating histogram: \t");
   start = clock();
   int *histogram = (int *)calloc(NUM_HIST_BOXES+1,sizeof(int));

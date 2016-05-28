@@ -15,7 +15,7 @@ BACK = ../
 # --------------------- #
 
 # ---- OBJECTS---- #
-OBJS = funcs.o main.o
+OBJS = funcs.o main.o ref_input.o
 # ---------------- #
 
 all:$(EXECUTABLE)
