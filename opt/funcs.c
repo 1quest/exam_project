@@ -8,6 +8,7 @@
 #include "funcs.h"
 #include "time.h"
 #include "string.h"
+#include <immintrin.h>
 
 void create_random_array(star_t * stars, const int size)
 {
@@ -100,23 +101,60 @@ void fill_matrix(star_t * array, float_t *matrix, const int size)
 {
   int i, j, a; 
 	a = 0;
-	//putchar('\n'); //For proving its correct
-	//float_t * temp = (float_t*)malloc(size * sizeof(float_t));
+	float_t *x1 = malloc(size * sizeof(float_t));
+	float_t *y1 = malloc(size * sizeof(float_t));
+	float_t *z1 = malloc(size * sizeof(float_t));
+	float_t *sf = malloc(size * sizeof(float_t));
   for(i = 0 ; i < size; i++){
-		float_t x1 = array[i].position.x;
-		float_t y1 = array[i].position.y; 
-		float_t z1 = array[i].position.z;
-    for(j = i; j < size; j++){ //Add vector addition
-			float_t d2 = sqrt(pow(array[j].position.x - x1,2) + pow(y1 - array[j].position.y,2) + pow(z1 - array[j].position.z,2));
-			matrix[a+j-i] = (float_t)(d2 + starfunc(array[j],array[i]));
-			//printf("%.2e ",matrix[a+j-i]); //For proving its correct
-			//printf("%.2f in place %i.. which becomes n%i%i\n", // <- proof of concept
-			//matrix[a+j-i]  ,a+j-i, i,j);  //<<shorten these
-    }
-		//putchar('\n');  //For proving its correct
-		a+=size-i;
+		x1[i] = array[i].position.x;
+		y1[i] = array[i].position.y; 
+		z1[i] = array[i].position.z;
+		sf[i] = array[i].subType;
 	}
+	fill_matravx(matrix, size, x1, y1, z1, sf);
 }
+
+
+void fill_matravx(float_t *matrix, int size, float_t *xv, float_t * yv, float_t * zv, float_t * sf){
+    int i,j,a;
+    __m256 xi,yi,zi,xj,yj,zj,x1,y1,z1,x2,y2,z2,dist,dist2,dist3,sfi,sfj,sf1,sf2,sf3,sfm,sfr,res,cDiv;
+    float con = 0.6;
+		a = 0;
+    cDiv = _mm256_set1_ps(con);
+    for(i = 1 ; i < size-1; i++){
+        xi = _mm256_set1_ps(xv[i]);
+        yi = _mm256_set1_ps(yv[i]);
+        zi = _mm256_set1_ps(zv[i]);
+        sfi = _mm256_set1_ps(sf[i]);        
+      for(j = i+1; j < size; j+=8){           
+            xj = _mm256_loadu_ps(xv+j);
+            yj = _mm256_loadu_ps(yv+j);
+            zj = _mm256_loadu_ps(zv+j);
+            sfj= _mm256_loadu_ps(sf+j);
+            
+            sf1= _mm256_mul_ps(sfi,sfj);
+            sfm= _mm256_div_ps(sf1,cDiv);
+            sf2= _mm256_add_ps(sfi,sfj);
+            sf3 = _mm256_add_ps(sf2,sfm);
+            sfr = _mm256_sqrt_ps(sf3);
+            
+            x1 = _mm256_sub_ps(xi,xj);
+            y1 = _mm256_sub_ps(yi,yj);
+            z1 = _mm256_sub_ps(zi,zj);
+            x2 = _mm256_mul_ps(x1,x1);
+            y2 = _mm256_mul_ps(y1,y1);
+            z2 = _mm256_mul_ps(z1,z1);
+            dist2 = _mm256_add_ps(x2,y2);
+            dist3 = _mm256_add_ps(dist2,z2);
+            dist = _mm256_sqrt_ps(dist3);
+            
+            res = _mm256_add_ps(dist,sfr);
+            _mm256_storeu_ps(matrix+a+j-i,res);
+        }
+		 a+=size-i;
+    }
+}
+
 
 void print_matrix(float_t** theMatrix, const int n)
 {
@@ -133,7 +171,6 @@ void print_matrix(float_t** theMatrix, const int n)
 hist_param_t generate_histogram(float_t *matrix, int *histogram, const int mat_size, int hist_size)
 {
 	int i,j, a, k, crd; //crd = coordinates
-	float min = 100000;
 	float max = 0;
 	float bin_size;
 	float_t tmp;
@@ -143,6 +180,10 @@ hist_param_t generate_histogram(float_t *matrix, int *histogram, const int mat_s
 	a = mat_size - 1;
 	memcpy(matrix_cpy, matrix, (mat_size * mat_size / 2 + mat_size/2) * sizeof(float_t));  
 	
+	//Need to do this mayn
+	float min = 2 * abs(matrix_cpy[mat_size] - matrix_cpy[2]) +  //up
+      	2 * abs(matrix_cpy[mat_size] - matrix_cpy[mat_size + 1]); //right
+				 
 	//Von Neumann calculations
     for(i = 1 ; i < mat_size-1; i++){
       for(j = i +1 ; j < mat_size ; j++){
