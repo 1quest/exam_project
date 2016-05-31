@@ -1,19 +1,15 @@
 /*****
- *  Code for examination project in High Performance Computing and Programming
- * 
- *  funcs.c functions implementation file
- *
- *  Author: Marcus Holm
- *  Modified by: Elias Rudberg
+ *  
+ *  DISCLAIMER: MY INTENTION WAS TO IMPLEMENT SIMD BUT MY PUNY BRAIN 
+ *  
  *
  **/
 
 #include "funcs.h"
 #include "time.h"
 #include "string.h"
-#define QS
 
-void create_random_array(star_t * stars, int size)
+void create_random_array(star_t * stars, const int size)
 {
 	srand(time(NULL));
 	int i;
@@ -29,12 +25,12 @@ void create_random_array(star_t * stars, int size)
 		stars[i].position.z = 6000*(float)rand()/(float)RAND_MAX-3000;
 		}
 }
-
+//Change this to take three float_t
 static inline float_t L2norm(star_t star){
     return sqrt(star.position.x*star.position.x+star.position.y*star.position.y+star.position.z*star.position.z);
 }
 
-void print_stars(star_t* array, int n)
+void print_stars(star_t* array, const int n)
 {
     int i;
     printf("\nprint_stars, n = %d:\n", n);
@@ -46,7 +42,7 @@ void print_stars(star_t* array, int n)
         printf("%f ",L2norm(array[i]));
     printf("\n");
 }
-
+//Change this to ushort in so that inline becomes useful
 static inline float_t starfunc(star_t a, star_t b)
 {
   unsigned short x = a.subType;
@@ -54,7 +50,8 @@ static inline float_t starfunc(star_t a, star_t b)
   return sqrt(x + y + x*y/0.6);
 }
 
-void sort(star_t* array, int n)
+//Do something supersmart about the d1&d2 if you have time
+void sort(star_t* array, const int n)
 {
 	  int i, j;
     float p, d1, d2;
@@ -83,7 +80,23 @@ void sort(star_t* array, int n)
     sort(array + i, n - i);
 }
 
-void fill_matrix(star_t * array, float_t *matrix, int size)
+int checksorted(star_t* array, const int n)
+{
+	int i;
+	float d1,d2;
+	for (i = 0; i < n -1; i++) {
+		d1 = sqrt(array[i].position.x*array[i].position.x + array[i].position.y*array[i].position.y);
+		d2 = sqrt(array[i+1].position.x*array[i+1].position.x + array[i+1].position.y*array[i+1].position.y);
+		if( d1 > d2 ){
+			printf("The list hasnt been sorted : i is %i\n", i);
+			return 0;
+		}
+	}
+	printf("List was sorted\n");
+	return 1;
+}
+
+void fill_matrix(star_t * array, float_t *matrix, const int size)
 {
   int i, j, a; 
 	a = 0;
@@ -93,7 +106,7 @@ void fill_matrix(star_t * array, float_t *matrix, int size)
 		float_t x1 = array[i].position.x;
 		float_t y1 = array[i].position.y; 
 		float_t z1 = array[i].position.z;
-    for(j = i; j < size; j++){
+    for(j = i; j < size; j++){ //Add vector addition
 			float_t d2 = sqrt(pow(array[j].position.x - x1,2) + pow(y1 - array[j].position.y,2) + pow(z1 - array[j].position.z,2));
 			matrix[a+j-i] = (float_t)(d2 + starfunc(array[j],array[i]));
 			//printf("%.2e ",matrix[a+j-i]); //For proving its correct
@@ -105,7 +118,7 @@ void fill_matrix(star_t * array, float_t *matrix, int size)
 	}
 }
 
-void print_matrix(float_t** theMatrix, int n)
+void print_matrix(float_t** theMatrix, const int n)
 {
   int i, j;
   printf("\nprint_matrix, n = %d:\n", n);
@@ -117,7 +130,7 @@ void print_matrix(float_t** theMatrix, int n)
     }
 }
 
-hist_param_t generate_histogram(float_t *matrix, int *histogram, int mat_size, int hist_size)
+hist_param_t generate_histogram(float_t *matrix, int *histogram, const int mat_size, int hist_size)
 {
 	int i,j, a, k, crd; //crd = coordinates
 	float min = 100000;
@@ -129,16 +142,18 @@ hist_param_t generate_histogram(float_t *matrix, int *histogram, int mat_size, i
 	k = mat_size - 1;
 	a = mat_size - 1;
 	memcpy(matrix_cpy, matrix, (mat_size * mat_size / 2 + mat_size/2) * sizeof(float_t));  
+	
+	//Von Neumann calculations
     for(i = 1 ; i < mat_size-1; i++){
       for(j = i +1 ; j < mat_size ; j++){
-      	crd = a+j-i;
-      	tmp = matrix[crd];
+      	crd = a+j-i; //Load in four "top" and four "bottom" cells to coalesce memory better
+      	tmp = matrix[crd]; // and then perform vector addition
       	matrix[crd] = abs(tmp - matrix_cpy[crd - k+1 - (1/i)]) +  //up
       	 abs(tmp -matrix_cpy[crd + k - 2 - (2*k-3)*(i==j-1) + (1/i)]) + //down
       	 abs(tmp - matrix_cpy[crd - 1 + 2*(i==j-1)])  + //left
       	 abs(tmp - matrix_cpy[crd + 1]); //Input the vector opåerator for dis cpu?
       	matrix[crd] /= 4; //Input floating point operator << instead
-      	//printf("index is: %i", a+j-i );
+      //printf("index is: %i", a+j-i );
       if(matrix[crd] > max) max = matrix[a+j-i];
       else if(matrix[crd] < min) min = matrix[a+j-i];
       //if(a+j-i==46)
@@ -148,6 +163,7 @@ hist_param_t generate_histogram(float_t *matrix, int *histogram, int mat_size, i
 			k = mat_size - i;
 			a += mat_size - i;
 		}
+		
     bin_size = (max-min)/(hist_size);
 		a = mat_size - 1;
     for(i = 1 ; i < mat_size-1; i++){

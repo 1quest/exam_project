@@ -22,16 +22,21 @@ void printtime(clock_t s, clock_t e)
 
 int main(int argc, char **argv)
 {
-  int N;
   clock_t start, end;
   if(argc < 2)
     {
       printf("usage: ./a.out N\n");
       return 0;
     }
-  N = atoi(argv[1]);
+  const int N = atoi(argv[1]);
   star_t *stars;
   stars = (star_t *) malloc(N*sizeof(star_t));
+	
+	printf("This is current: %lu\n", sizeof(star_t));
+	printf("This is star1: %lu\n", sizeof(star_t1));
+	printf("This is star2: %lu\n", sizeof(star_t2));
+	printf("This is star3: %lu\n", sizeof(star_t3));
+	printf("float_t: %ld\n", sizeof(float_t));
    
   printf("creating random stars: \t");
   start = clock();
@@ -50,6 +55,8 @@ int main(int argc, char **argv)
    
   end = clock();
   printtime(start, end);
+	
+	//checksorted(stars,N);
   //print_stars(stars, N);   // <--- This has output
    
   printf("allocating matrix: \t");
@@ -63,7 +70,7 @@ int main(int argc, char **argv)
   fill_matrix(stars, matrix, N);
   end = clock();
   printtime(start, end);
-	if(N<20){
+	if(N<20){   //<- this is tight
 		int i ,j, s;
 		float_t *ptrs[N*N] ;
 		s = 0;
@@ -79,7 +86,7 @@ int main(int argc, char **argv)
 		}
 		
 	print_matrix(ptrs, N);   // <--- This has output if defined alse helps to prove a point
- }
+  } 
   printf("generating histogram: \t");
   start = clock();
   int *histogram = (int *)calloc(NUM_HIST_BOXES+1,sizeof(int));
