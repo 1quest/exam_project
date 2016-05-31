@@ -9,6 +9,7 @@
 #include "time.h"
 #include "string.h"
 #include <immintrin.h>
+#define vec_size 8
 
 void create_random_array(star_t * stars, const int size)
 {
@@ -101,6 +102,28 @@ void fill_matrix(star_t * array, float_t *matrix, const int size)
 {
   int i, j, a; 
 	a = 0;
+	//putchar('\n'); //For proving its correct
+	//float_t * temp = (float_t*)malloc(size * sizeof(float_t));
+  for(i = 0 ; i < size; i++){
+		float_t x1 = array[i].position.x;
+		float_t y1 = array[i].position.y; 
+		float_t z1 = array[i].position.z;
+    for(j = i; j < size; j++){ //Add vector addition
+			float_t d2 = sqrt(pow(array[j].position.x - x1,2) + pow(y1 - array[j].position.y,2) + pow(z1 - array[j].position.z,2));
+			matrix[a+j-i] = (float_t)(d2 + starfunc(array[j],array[i]));
+			//printf("%.2e ",matrix[a+j-i]); //For proving its correct
+			//printf("%.2f in place %i.. which becomes n%i%i\n", // <- proof of concept
+			//matrix[a+j-i]  ,a+j-i, i,j);  //<<shorten these
+    }
+		//putchar('\n');  //For proving its correct
+		a+=size-i;
+	}
+}
+
+//Hit and miss
+void fill_matrixav(star_t * array, float_t *matrix, const int size)
+{
+  int i;
 	float_t *x1 = malloc(size * sizeof(float_t));
 	float_t *y1 = malloc(size * sizeof(float_t));
 	float_t *z1 = malloc(size * sizeof(float_t));
@@ -114,24 +137,25 @@ void fill_matrix(star_t * array, float_t *matrix, const int size)
 	fill_matravx(matrix, size, x1, y1, z1, sf);
 }
 
-
+//Hit and miss
 void fill_matravx(float_t *matrix, int size, float_t *xv, float_t * yv, float_t * zv, float_t * sf){
     int i,j,a;
     __m256 xi,yi,zi,xj,yj,zj,x1,y1,z1,x2,y2,z2,dist,dist2,dist3,sfi,sfj,sf1,sf2,sf3,sfm,sfr,res,cDiv;
     float con = 0.6;
 		a = 0;
     cDiv = _mm256_set1_ps(con);
-    for(i = 1 ; i < size-1; i++){
+    for(i = 0 ; i < size; i++){
         xi = _mm256_set1_ps(xv[i]);
         yi = _mm256_set1_ps(yv[i]);
         zi = _mm256_set1_ps(zv[i]);
         sfi = _mm256_set1_ps(sf[i]);        
-      for(j = i+1; j < size; j+=8){           
+      for(j = i; j < size; j+=vec_size){           
             xj = _mm256_loadu_ps(xv+j);
             yj = _mm256_loadu_ps(yv+j);
             zj = _mm256_loadu_ps(zv+j);
             sfj= _mm256_loadu_ps(sf+j);
             
+						//Starfunc implementation on vector-form
             sf1= _mm256_mul_ps(sfi,sfj);
             sfm= _mm256_div_ps(sf1,cDiv);
             sf2= _mm256_add_ps(sfi,sfj);
@@ -149,9 +173,11 @@ void fill_matravx(float_t *matrix, int size, float_t *xv, float_t * yv, float_t 
             dist = _mm256_sqrt_ps(dist3);
             
             res = _mm256_add_ps(dist,sfr);
-            _mm256_storeu_ps(matrix+a+j-i,res);
+            _mm256_storeu_ps(matrix+a,res);
+						printf("place: %i", a);
+						 a+=8;
         }
-		 a+=size-i;
+				printf("\n");
     }
 }
 
@@ -170,59 +196,63 @@ void print_matrix(float_t** theMatrix, const int n)
 
 hist_param_t generate_histogram(float_t *matrix, int *histogram, const int mat_size, int hist_size)
 {
-	int i,j, a, k, crd; //crd = coordinates
+	int i,j, a, k, crd, z; //crd = coordinates
 	float max = 0;
 	float bin_size;
 	float_t tmp;
 	hist_param_t histparams;
-	float_t *matrix_cpy = (float_t*)malloc((mat_size * mat_size / 2 + mat_size/2) * sizeof(float_t));
+	float_t *matrix_cpy = (float_t*)malloc(((mat_size * mat_size / 2 + mat_size/2) - 2 * mat_size +1) * sizeof(float_t));
 	k = mat_size - 1;
 	a = mat_size - 1;
-	memcpy(matrix_cpy, matrix, (mat_size * mat_size / 2 + mat_size/2) * sizeof(float_t));  
+	z = 0;
 	
 	//Need to do this mayn
-	float min = 2 * abs(matrix_cpy[mat_size] - matrix_cpy[2]) +  //up
-      	2 * abs(matrix_cpy[mat_size] - matrix_cpy[mat_size + 1]); //right
+	float min = 2 * abs(matrix[mat_size] - matrix[2]) +  //up
+      	2 * abs(matrix[mat_size] - matrix[mat_size + 1]); //right
 				 
 	//Von Neumann calculations
-    for(i = 1 ; i < mat_size-1; i++){
+    for(i = 1 ; i < mat_size-1; i++){			
       for(j = i +1 ; j < mat_size ; j++){
       	crd = a+j-i; //Load in four "top" and four "bottom" cells to coalesce memory better
       	tmp = matrix[crd]; // and then perform vector addition
-      	matrix[crd] = abs(tmp - matrix_cpy[crd - k+1 - (1/i)]) +  //up
-      	 abs(tmp -matrix_cpy[crd + k - 2 - (2*k-3)*(i==j-1) + (1/i)]) + //down
-      	 abs(tmp - matrix_cpy[crd - 1 + 2*(i==j-1)])  + //left
-      	 abs(tmp - matrix_cpy[crd + 1]); //Input the vector opåerator for dis cpu?
-      	matrix[crd] /= 4; //Input floating point operator << instead
-      //printf("index is: %i", a+j-i );
-      if(matrix[crd] > max) max = matrix[a+j-i];
-      else if(matrix[crd] < min) min = matrix[a+j-i];
-      //if(a+j-i==46)
-      //printf("%.2e in place %i.. up:%i   down:%i   left:%i   right:%i \n", // <- proof of concept
-			//matrix[19]  ,a+j-i, crd - k+1 - (1/i), crd + k - 2 - (2*k-3)*(i==j-1) + (1/i) ,a+j-i-1 + 2*(i==j-1), a+j-i+1);  //<<shorten these
-    	}
+      	matrix_cpy[z] = abs(tmp - matrix[crd - k+1 - (1/i)]) +  //up
+      	 abs(tmp -matrix[crd + k - 2 - (2*k-3)*(i==j-1) + (1/i)]) + //down
+      	 abs(tmp - matrix[crd - 1 + 2*(i==j-1)])  + //left
+      	 abs(tmp - matrix[crd + 1]); //Input the vector opåerator for dis cpu?
+      	 matrix[crd] /= 4; //Input floating point operator << instead
+				//printf("index is: %i", a+j-i );
+				if(matrix_cpy[z] > max) max = matrix_cpy[z];
+				else if(matrix_cpy[z] < min) min = matrix_cpy[z];
+				//if(a+j-i==46)
+				//printf("%.2e in place %i.. up:%i   down:%i   left:%i   right:%i \n", // <- proof of concept
+				//matrix[19]  ,a+j-i, crd - k+1 - (1/i), crd + k - 2 - (2*k-3)*(i==j-1) + (1/i) ,a+j-i-1 + 2*(i==j-1), a+j-i+1); //<<shorten these
+    		z++;
+			}
 			k = mat_size - i;
 			a += mat_size - i;
 		}
-		
     bin_size = (max-min)/(hist_size);
-		a = mat_size - 1;
-    for(i = 1 ; i < mat_size-1; i++){
-      for(j = i+1; j < mat_size; j++){
-      	k = (int)((matrix[a+j-i]-min)/bin_size); //Do this for four number at a time
+		a = 0;
+		z = 0;
+    for(i = 0 ; i < (mat_size * mat_size / 2 + mat_size/2 - 2 * mat_size + 1); i++){
+      	k = (int)((matrix_cpy[i]-min)/bin_size); //Do this for four number at a time
       	//printf("k is: %i  and index %i.  put in? %i\n",k, a+j-i , (i==j-1)); // <- proof of concept
-  			histogram[k] += 2 - (i==(j-1));
-  		}
-			a+= mat_size - i ;
+  			histogram[k] += 1 + (i!=a);
+				z += (i==a);
+				a += (mat_size - 2  - z) * (i==a);
 		}
+		//printf("WHATS UP BOSS: %i\n", z);
 		histogram[9] += histogram[10];
-	free(matrix_cpy);
 	histparams.hist_size = hist_size;
 	histparams.bin_size = bin_size;
 	histparams.min = min;
 	histparams.max = max;
+	free(matrix_cpy);
 	return histparams;
 }
+
+
+
 
 void display_histogram(int *histogram, hist_param_t histparams)
 {

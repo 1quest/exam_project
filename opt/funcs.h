@@ -19,6 +19,7 @@ void print_stars(star_t* array, int n);
 void sort(star_t* array, int n);
 
 void fill_matrix(star_t * array, float_t *matrix, int size);
+void fill_matrixav(star_t * array, float_t *matrix, int size);
 void print_matrix(float_t** matrix, int n);
 void fill_matravx(float_t *matrix, int size, float_t *xv, float_t * yv, float_t * zv, float_t * sf);
 

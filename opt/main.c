@@ -41,8 +41,8 @@ int main(int argc, char **argv)
   printf("creating random stars: \t");
   start = clock();
    
-  create_random_array(stars, N);
-  //create_ref_star_array(stars, N);
+  //create_random_array(stars, N);
+  create_ref_star_array(stars, N);
    
   end = clock();
   printtime(start, end);
@@ -67,10 +67,11 @@ int main(int argc, char **argv)
    
   printf("filling matrix: \t");
   start = clock();
-  fill_matrix(stars, matrix, N);
+	fill_matrix(stars, matrix, N);
   end = clock();
   printtime(start, end);
-	if(N<20){   //<- this is tight
+	
+	if(N<14){   //<- this is tight
 		int i ,j, s;
 		float_t *ptrs[N*N] ;
 		s = 0;
@@ -78,9 +79,9 @@ int main(int argc, char **argv)
 			for (j = i; j < N ; j++){
 				ptrs[i*N + j] = &matrix[s + j - i];
 				ptrs[(i + j*N)] = &matrix[s + j - i]; 
-				if(s + j -i == 49)
-					printf("%.2e in place %i.. to add to %i and %i\n", // <- proof of concept
-					matrix[s + j - i]  ,s+j-i, i*N + j, (i + j*N)*(1 - i==j));
+				//if(s + j -i == 49)
+					//printf("%.2e in place %i.. to add to %i and %i\n", // <- proof of concept
+					//matrix[s + j - i]  ,s+j-i, i*N + j, (i + j*N)*(1 - i==j));
 			}
 				s +=  N-i; 
 		}
