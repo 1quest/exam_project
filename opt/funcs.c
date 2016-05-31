@@ -137,48 +137,53 @@ void fill_matrixav(star_t * array, float_t *matrix, const int size)
 		sf[i] = array[i].subType;
 	}
 	fill_matravx(matrix, size, x1, y1, z1, sf);
+	free(x1);
+	free(y1);
+	free(z1);
+	free(sf);
 }
 
 //Hit and miss
 void fill_matravx(float_t *matrix, int size, float_t *xv, float_t * yv, float_t * zv, float_t * sf){
     int i,j,a;
-    __m256 xi,yi,zi,xj,yj,zj,x1,y1,z1,x2,y2,z2,dist,dist2,dist3,sfi,sfj,sf1,sf2,sf3,sfm,sfr,res,cDiv;
-    float con = 0.6;
+    __m256 xi, yi, zi, xj, yj, zj, dist, sfi, sfj, sf2, sfm, MUL;
 		a = 0;
-    cDiv = _mm256_set1_ps(con);
+		float c = 0.6;
+    MUL = _mm256_set1_ps(c);
     for(i = 0 ; i < size; i++){
         xi = _mm256_set1_ps(xv[i]);
         yi = _mm256_set1_ps(yv[i]);
         zi = _mm256_set1_ps(zv[i]);
         sfi = _mm256_set1_ps(sf[i]);        
-      for(j = i; j < size; j+=vec_size){           
+      for(j = i; j < size-vec_size; j+=vec_size){           
             xj = _mm256_loadu_ps(xv+j);
             yj = _mm256_loadu_ps(yv+j);
             zj = _mm256_loadu_ps(zv+j);
             sfj= _mm256_loadu_ps(sf+j);
             
 						//Starfunc implementation on vector-form
-            sf1= _mm256_mul_ps(sfi,sfj);
-            sfm= _mm256_div_ps(sf1,cDiv);
+            sfj= _mm256_mul_ps(sfi,sfj);
+            sfm= _mm256_div_ps(sfj,MUL);
             sf2= _mm256_add_ps(sfi,sfj);
-            sf3 = _mm256_add_ps(sf2,sfm);
-            sfr = _mm256_sqrt_ps(sf3);
+            sfj = _mm256_add_ps(sf2,sfm);
+            sfj = _mm256_sqrt_ps(sfj);
             
-            x1 = _mm256_sub_ps(xi,xj);
-            y1 = _mm256_sub_ps(yi,yj);
-            z1 = _mm256_sub_ps(zi,zj);
-            x2 = _mm256_mul_ps(x1,x1);
-            y2 = _mm256_mul_ps(y1,y1);
-            z2 = _mm256_mul_ps(z1,z1);
-            dist2 = _mm256_add_ps(x2,y2);
-            dist3 = _mm256_add_ps(dist2,z2);
-            dist = _mm256_sqrt_ps(dist3);
+            xj = _mm256_sub_ps(xi,xj);
+            yj = _mm256_sub_ps(yi,yj);
+            zj = _mm256_sub_ps(zi,zj);
+            xj = _mm256_mul_ps(xj,xj);
+            yj = _mm256_mul_ps(yj,yj);
+            zj = _mm256_mul_ps(zj,zj);
+            dist = _mm256_add_ps(xj,yj);
+            dist = _mm256_add_ps(dist,zj);
+            dist = _mm256_sqrt_ps(dist);
             
-            res = _mm256_add_ps(dist,sfr);
-            _mm256_storeu_ps(matrix+a,res);
-						printf("place: %i", a);
-						 a+=8;
+            dist = _mm256_add_ps(dist,sfj);
+            _mm256_storeu_ps(matrix+a,dist);						
+						
         }
+        a=a+8;
+        printf("place: %i", a);
 				printf("\n");
     }
 }
