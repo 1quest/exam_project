@@ -88,14 +88,14 @@ int main(int argc, char **argv)
 		
 	print_matrix(ptrs, N);   // <--- This has output if defined alse helps to prove a point
   }
-  /*printf("generating histogram: \t");
+  printf("generating histogram: \t");
   start = clock();
   int *histogram = (int *)calloc(NUM_HIST_BOXES+1,sizeof(int));
   hist_param_t histparams = generate_histogram(matrix, histogram, N, NUM_HIST_BOXES);
   end = clock();
-  printtime(start, end);*/
+  printtime(start, end);
 	free(matrix);
 	free(stars);
-  //display_histogram(histogram, histparams);
-  //free(histogram);
+  display_histogram(histogram, histparams);
+  free(histogram);
 }

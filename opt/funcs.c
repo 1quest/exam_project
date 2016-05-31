@@ -203,7 +203,7 @@ void print_matrix(float_t** theMatrix, const int n)
 
 hist_param_t generate_histogram(float_t *matrix, int *histogram, const int mat_size, int hist_size)
 {
-	int i,j, a, k, crd, z, N; //crd = coordinates
+	int i,j, a, k, crd, z, N, b; //crd = coordinates
 	float max = 0;
 	float bin_size;
 	float_t tmp;
@@ -249,12 +249,16 @@ hist_param_t generate_histogram(float_t *matrix, int *histogram, const int mat_s
     bin_size = (max-min)/(hist_size);
 		a = 0;
 		z = 0;
+		k = 0;
+		b = 0;
     for(i = 0 ; i < N; i++){
       	k = (int)((matrix_cpy[i]-min)/bin_size); //Do this for four number at a time
       	//printf("k is: %i  and index %i.  put in? %i\n",k, a+j-i , (i==j-1)); // <- proof of concept
-  			histogram[k] += 1 + (i!=a);
-				z += (i==a);
-				a += (mat_size - 2  - z) * (i==a);
+  			b = (i==a);
+				histogram[k] += 2 - b;
+				a += (mat_size  - 2 - z) * b;
+				z += b;
+				//printf("WHATS UP BOSS: %i\n I IZ: %i", a, i);
 		}
 		//printf("WHATS UP BOSS: %i\n", z);
 		histogram[9] += histogram[10];
