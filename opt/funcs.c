@@ -15,7 +15,7 @@ void create_random_array(star_t * stars, const int size)
 {
 	srand(time(NULL));
 	int i;
-	const char STypes[9] = {"OBAFGKMLT"};
+	const char STypes[] = {"OBAFGKMLT"};
 	for(i = 0; i < size; i++){
 		stars[i].index = i; 
 		stars[i].subType = (unsigned short)(rand() % 10);
@@ -100,8 +100,9 @@ int checksorted(star_t* array, const int n)
 
 void fill_matrix(star_t * array, float_t *matrix, const int size)
 {
-  int i, j, a; 
+  int i, j, a, z; 
 	a = 0;
+	z = 0;
 	//putchar('\n'); //For proving its correct
 	//float_t * temp = (float_t*)malloc(size * sizeof(float_t));
   for(i = 0 ; i < size; i++){
@@ -110,14 +111,15 @@ void fill_matrix(star_t * array, float_t *matrix, const int size)
 		float_t z1 = array[i].position.z;
     for(j = i; j < size; j++){ //Add vector addition
 			float_t d2 = sqrt(pow(array[j].position.x - x1,2) + pow(y1 - array[j].position.y,2) + pow(z1 - array[j].position.z,2));
-			matrix[a+j-i] = (float_t)(d2 + starfunc(array[j],array[i]));
+			matrix[z] = (float_t)(d2 + starfunc(array[j],array[i]));
 			//printf("%.2e ",matrix[a+j-i]); //For proving its correct
-			//printf("%.2f in place %i.. which becomes n%i%i\n", // <- proof of concept
-			//matrix[a+j-i]  ,a+j-i, i,j);  //<<shorten these
+			//printf("%.2i in place %i.. which becomes n%i%i\n", z, a+j-i, i,j);  //<<shorten these
+			z++;
     }
 		//putchar('\n');  //For proving its correct
 		a+=size-i;
 	}
+
 }
 
 //Hit and miss
@@ -196,12 +198,19 @@ void print_matrix(float_t** theMatrix, const int n)
 
 hist_param_t generate_histogram(float_t *matrix, int *histogram, const int mat_size, int hist_size)
 {
-	int i,j, a, k, crd, z; //crd = coordinates
+	int i,j, a, k, crd, z, N; //crd = coordinates
 	float max = 0;
 	float bin_size;
 	float_t tmp;
 	hist_param_t histparams;
-	float_t *matrix_cpy = (float_t*)malloc(((mat_size * mat_size / 2 + mat_size/2) - 2 * mat_size +1) * sizeof(float_t));
+	float_t *matrix_cpy;
+	if(mat_size%2){
+  	N = ((mat_size-2) * (mat_size-2) / 2 + (mat_size-2)/2 + 1);
+  	}
+  else{
+  	N = ((mat_size-2) * (mat_size-2) / 2 + (mat_size-2)/2);
+  	}
+  matrix_cpy = (float_t*)malloc(N * sizeof(float_t));
 	k = mat_size - 1;
 	a = mat_size - 1;
 	z = 0;
@@ -212,29 +221,30 @@ hist_param_t generate_histogram(float_t *matrix, int *histogram, const int mat_s
 				 
 	//Von Neumann calculations
     for(i = 1 ; i < mat_size-1; i++){			
-      for(j = i +1 ; j < mat_size ; j++){
+      for(j = i + 1 ; j < mat_size ; j++){
       	crd = a+j-i; //Load in four "top" and four "bottom" cells to coalesce memory better
       	tmp = matrix[crd]; // and then perform vector addition
       	matrix_cpy[z] = abs(tmp - matrix[crd - k+1 - (1/i)]) +  //up
-      	 abs(tmp -matrix[crd + k - 2 - (2*k-3)*(i==j-1) + (1/i)]) + //down
+      	 abs(tmp -matrix[crd + k - 2 - (2*k-3)*(i==j-1) + (1/i)] - 2*(z==0)) + //down
       	 abs(tmp - matrix[crd - 1 + 2*(i==j-1)])  + //left
       	 abs(tmp - matrix[crd + 1]); //Input the vector opåerator for dis cpu?
-      	 matrix[crd] /= 4; //Input floating point operator << instead
+      	 matrix_cpy[z] /= 4; //Input floating point operator << instead
 				//printf("index is: %i", a+j-i );
 				if(matrix_cpy[z] > max) max = matrix_cpy[z];
 				else if(matrix_cpy[z] < min) min = matrix_cpy[z];
 				//if(a+j-i==46)
 				//printf("%.2e in place %i.. up:%i   down:%i   left:%i   right:%i \n", // <- proof of concept
-				//matrix[19]  ,a+j-i, crd - k+1 - (1/i), crd + k - 2 - (2*k-3)*(i==j-1) + (1/i) ,a+j-i-1 + 2*(i==j-1), a+j-i+1); //<<shorten these
+				//matrix[19]  ,a+j-i, crd - k+1 - (1/i), crd + k - 2 - (2*k-3)*(i==j-1) + (1/i) - 2*(z==0),a+j-i-1 + 2*(i==j-1), crd+1); //<<shorten these
     		z++;
 			}
 			k = mat_size - i;
 			a += mat_size - i;
 		}
+		//printf("WHATS UP BOSS: %i, N IS:%i\n", z , N);
     bin_size = (max-min)/(hist_size);
 		a = 0;
 		z = 0;
-    for(i = 0 ; i < (mat_size * mat_size / 2 + mat_size/2 - 2 * mat_size + 1); i++){
+    for(i = 0 ; i < N; i++){
       	k = (int)((matrix_cpy[i]-min)/bin_size); //Do this for four number at a time
       	//printf("k is: %i  and index %i.  put in? %i\n",k, a+j-i , (i==j-1)); // <- proof of concept
   			histogram[k] += 1 + (i!=a);

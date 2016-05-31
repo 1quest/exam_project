@@ -31,18 +31,12 @@ int main(int argc, char **argv)
   const int N = atoi(argv[1]);
   star_t *stars;
   stars = (star_t *) malloc(N*sizeof(star_t));
-	
-	printf("This is current: %lu\n", sizeof(star_t));
-	printf("This is star1: %lu\n", sizeof(star_t1));
-	printf("This is star2: %lu\n", sizeof(star_t2));
-	printf("This is star3: %lu\n", sizeof(star_t3));
-	printf("float_t: %ld\n", sizeof(float_t));
    
   printf("creating random stars: \t");
-  start = clock();
+  start = clock(); 
    
-  //create_random_array(stars, N);
-  create_ref_star_array(stars, N);
+  create_random_array(stars, N);
+  //create_ref_star_array(stars, N);
    
   end = clock();
   printtime(start, end);
@@ -60,8 +54,14 @@ int main(int argc, char **argv)
   //print_stars(stars, N);   // <--- This has output
    
   printf("allocating matrix: \t");
+  float_t *matrix;
   start = clock();
-  float_t *matrix = malloc((N * N / 2 + N/2) * sizeof(float_t));
+  if(N%2){
+  	matrix = malloc((N * N / 2 + N/2 + 1) * sizeof(float_t));
+  	}
+  else{
+  	matrix = malloc((N * N / 2 + N/2) * sizeof(float_t));
+  	}
   end = clock();
   printtime(start, end);
    
@@ -87,7 +87,7 @@ int main(int argc, char **argv)
 		}
 		
 	print_matrix(ptrs, N);   // <--- This has output if defined alse helps to prove a point
-  } 
+  }
   printf("generating histogram: \t");
   start = clock();
   int *histogram = (int *)calloc(NUM_HIST_BOXES+1,sizeof(int));
